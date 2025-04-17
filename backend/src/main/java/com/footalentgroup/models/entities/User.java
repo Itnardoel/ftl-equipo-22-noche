@@ -1,6 +1,6 @@
-package com.footalentgroup.models;
+package com.footalentgroup.models.entities;
 
-import com.footalentgroup.enums.RoleList;
+import com.footalentgroup.models.enums.RoleList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
