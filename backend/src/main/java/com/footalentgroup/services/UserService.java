@@ -2,6 +2,7 @@ package com.footalentgroup.services;
 
 import com.footalentgroup.models.entities.User;
 import com.footalentgroup.repositories.IUserRepository;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Collections;
 
+@NoArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
     private IUserRepository userRepository;
