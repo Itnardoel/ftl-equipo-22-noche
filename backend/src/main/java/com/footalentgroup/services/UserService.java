@@ -3,6 +3,7 @@ package com.footalentgroup.services;
 import com.footalentgroup.models.entities.User;
 import com.footalentgroup.repositories.IUserRepository;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,11 +16,8 @@ import java.util.Collections;
 @NoArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
+    @Autowired
     private IUserRepository userRepository;
-
-    public UserService(IUserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

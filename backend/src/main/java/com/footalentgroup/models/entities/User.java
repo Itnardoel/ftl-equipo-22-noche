@@ -3,10 +3,7 @@ package com.footalentgroup.models.entities;
 import com.footalentgroup.models.enums.RoleList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 
 @Data
 @Entity
@@ -43,5 +40,29 @@ public class User {
 
     public User() {
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public RoleList getRole() {
+        return role;
     }
 }
