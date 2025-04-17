@@ -33,4 +33,12 @@ public class UserService implements UserDetailsService {
                 Collections.singleton(authority)
         );
     }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public void save(User user) {
+        userRepository.save(user);
+    }
 }

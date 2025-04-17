@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
 @Table(name= "users")
 public class User {
@@ -34,4 +32,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private RoleList role;
+
+    public User(String email, String name, String lastName, String password, RoleList role) {
+        this.email = email;
+        this.name = name;
+        this.lastName = lastName;
+        this.password = password;
+        this.role = role;
+    }
+
+    public User() {
+
+    }
 }
