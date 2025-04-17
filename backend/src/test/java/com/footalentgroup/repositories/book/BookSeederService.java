@@ -1,6 +1,6 @@
 package com.footalentgroup.repositories.book;
 
-import com.footalentgroup.entities.BookEntity;
+import com.footalentgroup.models.entities.BookEntity;
 import com.footalentgroup.repositories.BookRepository;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;

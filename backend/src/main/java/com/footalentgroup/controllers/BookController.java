@@ -1,6 +1,6 @@
 package com.footalentgroup.controllers;
 
-import com.footalentgroup.entities.BookEntity;
+import com.footalentgroup.models.entities.BookEntity;
 import com.footalentgroup.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

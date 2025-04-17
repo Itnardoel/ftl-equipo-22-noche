@@ -1,6 +1,6 @@
 package com.footalentgroup.repositories;
 
-import com.footalentgroup.entities.BookEntity;
+import com.footalentgroup.models.entities.BookEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

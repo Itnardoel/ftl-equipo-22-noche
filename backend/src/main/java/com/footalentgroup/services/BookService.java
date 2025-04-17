@@ -1,6 +1,6 @@
 package com.footalentgroup.services;
 
-import com.footalentgroup.entities.BookEntity;
+import com.footalentgroup.models.entities.BookEntity;
 
 public interface BookService {
     BookEntity read(String isbn);

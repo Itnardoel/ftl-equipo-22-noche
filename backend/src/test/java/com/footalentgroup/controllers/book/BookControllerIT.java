@@ -2,7 +2,7 @@ package com.footalentgroup.controllers.book;
 
 import com.footalentgroup.controllers.BookController;
 import com.footalentgroup.controllers.RestTestConfig;
-import com.footalentgroup.entities.BookEntity;
+import com.footalentgroup.models.entities.BookEntity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

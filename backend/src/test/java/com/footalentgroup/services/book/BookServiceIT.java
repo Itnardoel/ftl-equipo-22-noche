@@ -1,7 +1,7 @@
 package com.footalentgroup.services.book;
 
 import com.footalentgroup.TestConfig;
-import com.footalentgroup.entities.BookEntity;
+import com.footalentgroup.models.entities.BookEntity;
 import com.footalentgroup.services.BookService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

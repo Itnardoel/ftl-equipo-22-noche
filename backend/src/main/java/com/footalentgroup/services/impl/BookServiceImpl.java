@@ -1,6 +1,6 @@
 package com.footalentgroup.services.impl;
 
-import com.footalentgroup.entities.BookEntity;
+import com.footalentgroup.models.entities.BookEntity;
 import com.footalentgroup.repositories.BookRepository;
 import com.footalentgroup.services.BookService;
 import jakarta.transaction.Transactional;
