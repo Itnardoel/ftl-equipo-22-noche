@@ -5,6 +5,7 @@ import com.footalentgroup.utils.JwtAuthenticationFilter;
 import com.footalentgroup.utils.JwtEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -24,8 +25,8 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@Profile("!test")
 public class SecurityConfig {
-
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -60,10 +61,6 @@ public class SecurityConfig {
         return new UserService();
     }
 
-    /**
-     *
-     * Se encarga de autenticar usuarios usando sus credenciales y un codificador de contraseñas.
-     */
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider authenticationProvider= new DaoAuthenticationProvider();
@@ -73,14 +70,11 @@ public class SecurityConfig {
         return authenticationProvider;
     }
 
-    /**
-    * Configura el CORS para permitir solicitudes desde el frontend
-     */
     @Bean
     CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);
