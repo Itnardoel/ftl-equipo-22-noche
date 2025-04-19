@@ -5,6 +5,8 @@ import com.footalentgroup.models.entities.BookEntity;
 import com.footalentgroup.repositories.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDate;
 
@@ -20,6 +22,30 @@ class BookRepositoryIT {
     @Test
     void testExistsByIsbn() {
         assertTrue(this.bookRepository.existsByIsbn("978-987654321"));
+    }
+
+    @Test
+    void testFindByTitle() {
+        Page<BookEntity> result = this.bookRepository.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(
+                "Brave New World",
+                null,
+                PageRequest.of(0, 10)
+        );
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Brave New World", result.getContent().get(0).getTitle());
+    }
+
+    @Test
+    void testFindByAuthor() {
+        Page<BookEntity> result = this.bookRepository.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(
+                null,
+                "Aldous Huxley",
+                PageRequest.of(0, 10)
+        );
+
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Aldous Huxley", result.getContent().get(0).getAuthor());
     }
 
     @Test
