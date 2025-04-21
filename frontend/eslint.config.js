@@ -36,6 +36,7 @@ export default tseslint.config(
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       ...reactX.configs["recommended-typescript"].rules,
       ...reactDom.configs.recommended.rules,
+      "@typescript-eslint/no-misused-promises": "off",
     },
   },
   eslintPluginPrettier,
