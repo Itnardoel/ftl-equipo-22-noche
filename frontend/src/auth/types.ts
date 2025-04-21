@@ -1,3 +1,5 @@
+type Role = "ROLE_USER" | "ROLE_ADMIN";
+
 export interface LoginPayload {
   email: string;
   password: string;
@@ -5,9 +7,10 @@ export interface LoginPayload {
 
 export interface RegisterPayload {
   name: string;
+  lastname: string;
   email: string;
   password: string;
-  confirmPassword?: string;
+  role: Role;
 }
 
 export interface User {
