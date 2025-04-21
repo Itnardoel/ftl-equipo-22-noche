@@ -1,10 +1,11 @@
 import { createContext, useState, useEffect, useMemo, PropsWithChildren } from "react";
+import { jwtDecode } from "jwt-decode";
 import { User } from "../types";
 
 interface AuthContext {
   authToken?: string | null;
   user?: User | null;
-  handleLogin: (userData: User) => void; //TODO --> ver si hace falta pasar informacion del usuario
+  handleLogin: (userToken: string) => void;
   handleLogout: () => void;
 }
 
@@ -13,25 +14,29 @@ const AuthContext = createContext<AuthContext | undefined>(undefined);
 type AuthProviderProps = PropsWithChildren;
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  // const [authToken, setAuthToken] = useState<string | null>();
+  const [authToken, setAuthToken] = useState<string | null>();
   const [user, setUser] = useState<User | null>();
 
-  const handleLogin = (userData: User) => {
+  const handleLogin = (userToken: string) => {
+    setAuthToken(userToken);
+    localStorage.setItem("userToken", JSON.stringify(userToken));
+
+    const userData = jwtDecode<User>(userToken);
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const handleLogout = () => {
+    setAuthToken(null);
     setUser(null);
-    localStorage.removeItem("user");
+    localStorage.removeItem("userToken");
   };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) setUser(JSON.parse(storedUser) as User);
+    const storedToken = localStorage.getItem("userToken");
+    if (storedToken) setAuthToken(JSON.parse(storedToken) as string);
   }, []);
 
-  const value = useMemo(() => ({ user, handleLogin, handleLogout }), [user]);
+  const value = useMemo(() => ({ authToken, user, handleLogin, handleLogout }), [authToken, user]);
 
   return <AuthContext value={value}>{children}</AuthContext>;
 };
