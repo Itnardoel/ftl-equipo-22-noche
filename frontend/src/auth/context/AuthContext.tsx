@@ -1,27 +1,27 @@
-import { createContext, useState, useEffect, useMemo, ReactNode } from "react";
+import { createContext, useState, useEffect, useMemo, PropsWithChildren } from "react";
 import { User } from "../types";
 
-interface AuthContextType {
-  user: User | null;
-  login: (userData: User) => void;
-  logout: () => void;
+interface AuthContext {
+  authToken?: string | null;
+  user?: User | null;
+  handleLogin: (userData: User) => void; //TODO --> ver si hace falta pasar informacion del usuario
+  handleLogout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContext | undefined>(undefined);
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+type AuthProviderProps = PropsWithChildren;
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUser] = useState<User | null>(null);
+  // const [authToken, setAuthToken] = useState<string | null>();
+  const [user, setUser] = useState<User | null>();
 
-  const login = (userData: User) => {
+  const handleLogin = (userData: User) => {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
   };
 
-  const logout = () => {
+  const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
   };
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (storedUser) setUser(JSON.parse(storedUser) as User);
   }, []);
 
-  const value = useMemo(() => ({ user, login, logout }), [user]);
+  const value = useMemo(() => ({ user, handleLogin, handleLogout }), [user]);
 
   return <AuthContext value={value}>{children}</AuthContext>;
 };
