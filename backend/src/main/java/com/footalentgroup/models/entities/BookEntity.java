@@ -1,9 +1,12 @@
 package com.footalentgroup.models.entities;
 
+import com.footalentgroup.models.dtos.request.BookRequestDTO;
+import com.footalentgroup.models.dtos.response.BookResponseDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDate;
 
@@ -24,6 +27,8 @@ public class BookEntity {
 
     private LocalDate published;
 
+    private Boolean deleted;
+
     public BookEntity() {
     }
 
@@ -32,6 +37,7 @@ public class BookEntity {
         this.title = title;
         this.author = author;
         this.published = published;
+        this.deleted = false;
     }
 
     public BookEntity(String id, String isbn, String title, String author, LocalDate published) {
@@ -40,5 +46,16 @@ public class BookEntity {
         this.title = title;
         this.author = author;
         this.published = published;
+        this.deleted = false;
+    }
+
+    public BookEntity(BookRequestDTO dto) {
+        BeanUtils.copyProperties(dto, this);
+    }
+
+    public BookResponseDTO toDTO() {
+        BookResponseDTO dto = new BookResponseDTO();
+        BeanUtils.copyProperties(this, dto);
+        return dto;
     }
 }
