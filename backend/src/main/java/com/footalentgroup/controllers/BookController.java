@@ -6,6 +6,7 @@ import com.footalentgroup.services.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,16 +33,19 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public BookResponseDTO create(@Valid @RequestBody BookRequestDTO book) {
         return this.bookService.create(book);
     }
 
     @PutMapping(ISBN)
+    @PreAuthorize("hasRole('ADMIN')")
     public BookResponseDTO update(@PathVariable String isbn, @Valid @RequestBody BookRequestDTO book) {
         return this.bookService.update(isbn, book);
     }
 
     @DeleteMapping(ISBN)
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(@PathVariable String isbn) {
         this.bookService.delete(isbn);
     }

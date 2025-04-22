@@ -1,10 +1,12 @@
 package com.footalentgroup.services.impl;
 
+import com.footalentgroup.exception.BookAlreadyExistsException;
 import com.footalentgroup.models.dtos.request.BookRequestDTO;
 import com.footalentgroup.models.dtos.response.BookResponseDTO;
 import com.footalentgroup.models.entities.BookEntity;
 import com.footalentgroup.repositories.BookRepository;
 import com.footalentgroup.services.BookService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,7 +37,7 @@ public class BookServiceImpl implements BookService {
     public BookResponseDTO read(String isbn) {
         return this.bookRepository
                 .findByIsbn(isbn)
-                .orElseThrow(() -> new RuntimeException("Book: " + isbn))
+                .orElseThrow(() -> new EntityNotFoundException("Book: " + isbn))
                 .toDTO();
     }
 
@@ -49,7 +51,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookResponseDTO update(String isbn, BookRequestDTO book) {
-        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new RuntimeException("Book: " + isbn));
+        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book: " + isbn));
         bookDB.setTitle(book.getTitle());
         bookDB.setAuthor(book.getAuthor());
         bookDB.setPublished(book.getPublished());
@@ -60,14 +62,14 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public void delete(String isbn) {
-        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new RuntimeException("Book: " + isbn));
+        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book: " + isbn));
         bookDB.setDeleted(true);
         this.bookRepository.save(bookDB);
     }
 
     private void assertBookNotExist(String isbn) {
         if (this.bookRepository.existsByIsbn(isbn)) {
-            throw new RuntimeException("Book exists: " + isbn);
+                throw new BookAlreadyExistsException("Book exists: " + isbn);
         }
     }
 }

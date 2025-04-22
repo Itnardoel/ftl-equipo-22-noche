@@ -3,12 +3,15 @@ package com.footalentgroup.configuration;
 import com.footalentgroup.services.UserService;
 import com.footalentgroup.utils.JwtAuthenticationFilter;
 import com.footalentgroup.utils.JwtEntryPoint;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,8 +28,12 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
 @Profile("!test")
 public class SecurityConfig {
+    private final JwtEntryPoint jwtEntryPoint;
+    private final JwtAuthenticationFilter jwtTokenFilter;
 
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -39,40 +46,29 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**"
-                                ).permitAll()
-                                .requestMatchers("/users/getAllUsers").hasRole("ADMIN")
-                                .requestMatchers("/users/getUserByID/{id}").hasAnyRole("ADMIN", "USER")
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/poc/books", "/poc/books/{isbn}").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint()))
-                .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint))
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtTokenFilter() {
-        return new JwtAuthenticationFilter();
-    }
-
-    @Bean
-    public JwtEntryPoint jwtEntryPoint(){
-        return  new JwtEntryPoint();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    UserDetailsService userDetailsService(){
+    UserDetailsService userDetailsService() {
         return new UserService();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider= new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
@@ -81,12 +77,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(){
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
