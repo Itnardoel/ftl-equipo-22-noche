@@ -14,14 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(UserController.USERS)
+@RequiredArgsConstructor
 public class UserController {
+    public static final String USERS = "/users";
 
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/getAllUsers")
     @PreAuthorize("hasRole('ADMIN')")
@@ -31,12 +29,13 @@ public class UserController {
 
     @GetMapping("/getUserByID/{id}")
     public ResponseEntity<UserDto> getUserByID(@PathVariable Long id, Authentication authentication) {
-     UserDto user= userService.getUserById(id);
+        UserDto user = userService.getUserById(id);
 
-     //si el usuario no es admin y no son sus  propios datos
-     if(!userService.isAdmin(authentication) && !user.getEmail().equals(authentication.getName())){
-         return ResponseEntity.status(403).build();
-     }
-     return ResponseEntity.ok(user);
+        // Si el usuario no es admin y no son sus  propios datos
+        if (!userService.isAdmin(authentication) && !user.getEmail().equals(authentication.getName())){
+            return ResponseEntity.status(403).build();
+        }
+
+        return ResponseEntity.ok(user);
     }
 }

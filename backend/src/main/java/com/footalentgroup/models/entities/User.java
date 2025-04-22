@@ -4,11 +4,14 @@ import com.footalentgroup.models.enums.RoleList;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
 @Entity
 @Table(name= "users")
+@Data @Getter @Setter
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,6 +33,8 @@ public class User {
     @Column(name = "role", nullable = false)
     private RoleList role;
 
+    public User() {}
+
     public User(String email, String name, String lastName, String password, RoleList role) {
         this.email = email;
         this.name = name;
@@ -38,31 +43,7 @@ public class User {
         this.role = role;
     }
 
-    public User() {
-
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public RoleList getRole() {
-        return role;
+    public String getFullName() {
+        return name + " " + lastName;
     }
 }
