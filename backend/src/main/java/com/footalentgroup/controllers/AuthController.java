@@ -3,10 +3,14 @@ package com.footalentgroup.controllers;
 import com.footalentgroup.models.dtos.LoginUserDto;
 import com.footalentgroup.models.dtos.NewUserDto;
 import com.footalentgroup.services.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,6 +20,7 @@ public class AuthController {
     public static final String AUTH = "/auth";
 
     private final AuthService authService;
+    private final SecurityContextLogoutHandler  logoutHandler= new SecurityContextLogoutHandler();
 
     /**
      * login maneja el inicio de sesión.
@@ -44,5 +49,13 @@ public class AuthController {
     @GetMapping("/check-auth")
     public ResponseEntity<String> checkAuth(){
         return ResponseEntity.ok().body("Autenticado");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request,
+                                         HttpServletResponse response,
+                                         Authentication authentication) {
+   logoutHandler.logout(request, response, authentication);
+   return ResponseEntity.ok().body("Logout exitoso");
     }
 }
