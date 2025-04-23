@@ -35,8 +35,8 @@ public class JwtUtil {
         SecretKey key = getKey();
 
         return Jwts.builder()
-                .setSubject(mainUser.getUsername())
                 .setClaims(claims)
+                .setSubject(mainUser.getUsername())
                 .setIssuedAt(issuedAt)
                 .setExpiration(expiration)
                 .signWith(key, SignatureAlgorithm.HS256)
