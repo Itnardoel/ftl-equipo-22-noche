@@ -7,6 +7,7 @@ import com.footalentgroup.models.dtos.response.BookResponseDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
@@ -93,7 +94,7 @@ class BookControllerIT {
                 .uri(BookController.BOOKS)
                 .body(BodyInserters.fromValue(book))
                 .exchange()
-                .expectStatus().is5xxServerError();
+                .expectStatus().isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test
