@@ -1,6 +1,6 @@
 package com.footalentgroup.services.impl;
 
-import com.footalentgroup.exception.BookAlreadyExistsException;
+import com.footalentgroup.exception.ConflictException;
 import com.footalentgroup.models.dtos.request.BookRequestDTO;
 import com.footalentgroup.models.dtos.response.BookResponseDTO;
 import com.footalentgroup.models.entities.BookEntity;
@@ -37,7 +37,7 @@ public class BookServiceImpl implements BookService {
     public BookResponseDTO read(String isbn) {
         return this.bookRepository
                 .findByIsbn(isbn)
-                .orElseThrow(() -> new EntityNotFoundException("Book: " + isbn))
+                .orElseThrow(() -> new EntityNotFoundException("Libro: " + isbn))
                 .toDTO();
     }
 
@@ -51,7 +51,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookResponseDTO update(String isbn, BookRequestDTO book) {
-        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book: " + isbn));
+        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Libro: " + isbn));
         bookDB.setTitle(book.getTitle());
         bookDB.setAuthor(book.getAuthor());
         bookDB.setPublished(book.getPublished());
@@ -62,14 +62,14 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public void delete(String isbn) {
-        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book: " + isbn));
+        BookEntity bookDB = this.bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Libro: " + isbn));
         bookDB.setDeleted(true);
         this.bookRepository.save(bookDB);
     }
 
     private void assertBookNotExist(String isbn) {
         if (this.bookRepository.existsByIsbn(isbn)) {
-                throw new BookAlreadyExistsException("Book exists: " + isbn);
+                throw new ConflictException("Libro ya existe: " + isbn);
         }
     }
 }

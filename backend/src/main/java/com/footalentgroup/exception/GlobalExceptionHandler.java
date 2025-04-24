@@ -1,94 +1,123 @@
 package com.footalentgroup.exception;
 
 import jakarta.persistence.EntityNotFoundException;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    public record ErrorResponse(String message,HttpStatus status, List<String> errors) {
-        public ErrorResponse(String message, HttpStatus status) {
-            this(message, status, null);
+    public record ErrorResponse(String error, String message, Integer code, List<String> errors) {
+        public ErrorResponse(Exception ex, Integer code) {
+            this(ex.getClass().getSimpleName(), ex.getMessage(), code, List.of());
+        }
+
+        public ErrorResponse(String error, String message, Integer code) {
+            this(error, message, code, List.of());
         }
     }
 
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UnauthorizedException.class)
+    public void unauthorized(Exception ex) {
+        // Empty, nothing to do
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(BadCredentialsException.class)
+    public ErrorResponse unauthorized(BadCredentialsException ex) {
+        return new ErrorResponse(
+                "BadCredentialsException",
+                "Nombre de usuario o contraseña incorrectos.",
+                HttpStatus.UNAUTHORIZED.value()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler({
+            ForbiddenException.class,
+            org.springframework.security.access.AccessDeniedException.class,
+    })
+    public ErrorResponse forbidden(Exception ex) {
+        return new ErrorResponse(
+                "ForbiddenException",
+                "No tienes permiso para acceder a este recurso.",
+                HttpStatus.FORBIDDEN.value()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler({
+            BadRequestException.class,
+            org.springframework.dao.DuplicateKeyException.class,
+            org.springframework.http.converter.HttpMessageNotReadableException.class,
+            org.springframework.web.server.ServerWebInputException.class
+    })
+    public ErrorResponse badRequest(Exception ex) {
+        return new ErrorResponse(ex, HttpStatus.BAD_REQUEST.value());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<String> errores = ex.getBindingResult()
+    public ErrorResponse badRequest(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(Collectors.toList());
+                .toList();
 
-        ErrorResponse errorResponse = new ErrorResponse("Validación fallida", HttpStatus.BAD_REQUEST, errores);
-        return new ResponseEntity<>(errorResponse, errorResponse.status());
+        return new ErrorResponse(
+                "ValidationError",
+                "La solicitud contiene datos inválidos.",
+                HttpStatus.BAD_REQUEST.value(),
+                errors
+        );
     }
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler({
+            ConflictException.class,
+            DataIntegrityViolationException.class,
+    })
+    public ErrorResponse conflict(Exception ex) {
+        return new ErrorResponse(ex, HttpStatus.CONFLICT.value());
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler({
+            NoResourceFoundException.class,
+            ResponseStatusException.class,
+            NoHandlerFoundException.class,
+    })
+    public ErrorResponse noResourceFoundRequest(Exception ex) {
+        return new ErrorResponse(
+                "NoResourceFoundException",
+                "El recurso solicitado no existe. Itenta con `**/swagger-ui.html`",
+                HttpStatus.NOT_FOUND.value()
+        );
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(),HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(errorResponse, errorResponse.status());
+    public ErrorResponse notFound(Exception ex) {
+        return new ErrorResponse(ex, HttpStatus.NOT_FOUND.value());
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        String message = Objects.requireNonNull(ex.getRootCause()).getMessage();
-        ErrorResponse errorResponse = new ErrorResponse(message, HttpStatus.CONFLICT);
-        return new ResponseEntity<>(errorResponse, errorResponse.status());
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)   // The error must be corrected
+    @ExceptionHandler(Exception.class)
+    public ErrorResponse exception(Exception ex) {
+        ex.printStackTrace();
+        return new ErrorResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Credenciales inválidas",HttpStatus.UNAUTHORIZED);
-        return new ResponseEntity<>(errorResponse, errorResponse.status());
-    }
-
-    @ExceptionHandler(PropertyReferenceException.class)
-    public ResponseEntity<?> handlePropertyReferenceException(PropertyReferenceException ex) {
-        ErrorResponse errorResponse = new ErrorResponse("Invalid parameter: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                ex.getMessage(),
-                HttpStatus.CONFLICT
-        );
-
-        return new ResponseEntity<>(errorResponse, errorResponse.status());
-    }
-
-    @ExceptionHandler(BookAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleBookAlreadyExistsException(BookAlreadyExistsException ex) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                ex.getMessage(),
-                HttpStatus.CONFLICT
-        );
-
-        return new ResponseEntity<>(errorResponse, errorResponse.status());
-    }
-
-// Se crea una excepción personalizada y se maneja con un @ExceptionHandler.
-// Se pasa la excepción como parámetro y se utiliza un DTO (ErrorResponse) para retornar
-// un mensaje claro y el código HTTP correspondiente.
-
-//    Ejemplo:
-//    @ExceptionHandler(UserNotFoundException.class)
-//    public ResponseEntity<?> handleServiceException(UserNotFoundException ex){
-//        ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-//        return new ResponseEntity<>(errorResponse, errorResponse.status());
-//    }
 }
