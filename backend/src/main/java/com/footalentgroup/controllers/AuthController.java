@@ -35,7 +35,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@Valid @RequestBody NewUserDto newUserDto) {
         authService.registerUser(newUserDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Registrado");
+        String token = authService.authenticate(newUserDto.getEmail(), newUserDto.getPassword());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(token);
     }
 
     /**
