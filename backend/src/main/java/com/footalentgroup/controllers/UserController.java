@@ -1,5 +1,6 @@
 package com.footalentgroup.controllers;
 
+import com.footalentgroup.exception.ForbiddenException;
 import com.footalentgroup.models.dtos.UserDto;
 import com.footalentgroup.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +29,13 @@ public class UserController {
     }
 
     @GetMapping("/getUserByID/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<UserDto> getUserByID(@PathVariable Long id, Authentication authentication) {
         UserDto user = userService.getUserById(id);
 
         // Si el usuario no es admin y no son sus  propios datos
         if (!userService.isAdmin(authentication) && !user.getEmail().equals(authentication.getName())){
-            return ResponseEntity.status(403).build();
+            throw new ForbiddenException();
         }
 
         return ResponseEntity.ok(user);

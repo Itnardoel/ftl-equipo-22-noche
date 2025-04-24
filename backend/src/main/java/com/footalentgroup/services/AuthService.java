@@ -1,12 +1,12 @@
 package com.footalentgroup.services;
 
-import com.footalentgroup.exception.EmailAlreadyExistsException;
+import com.footalentgroup.exception.ConflictException;
 import com.footalentgroup.models.dtos.NewUserDto;
 import com.footalentgroup.models.entities.User;
 import com.footalentgroup.repositories.IUserRepository;
 import com.footalentgroup.utils.JwtUtil;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -31,7 +31,7 @@ public class AuthService {
      * Si las credenciales son válidas, genera un token JWT.
      */
     public String authenticate(String email, String password) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User: " + email));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BadCredentialsException("Username or password is incorrect"));
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -46,7 +46,7 @@ public class AuthService {
      */
     public void registerUser(NewUserDto newUserDto){
         if (this.userRepository.existsByEmail(newUserDto.getEmail())) {
-            throw new EmailAlreadyExistsException("El correo electrónico ya existe");
+            throw new ConflictException("El correo electrónico ya existe: " + newUserDto.getEmail());
         }
 
         // La contraseña es codificada
